@@ -27,3 +27,6 @@ keystore.properties
 .DS_Store
 Thumbs.db
 *.log
+
+# ---- 本地临时文件 ----
+COMMIT_MSG.tmp

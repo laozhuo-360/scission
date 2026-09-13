@@ -139,13 +139,20 @@ public final class NetBlocker {
     /**
      * 单线程消化循环：执行期望状态；若执行期间期望又变了，
      * 继续循环执行新值 —— 快速连按 N 次中间态全部被跳过，不堆积任务。
+     *
+     * Bug9：读 desiredBlocked 与 blocked 的对比加锁，
+     * 防止"开启"还没执行完时用户连点两次"恢复"，
+     * 第二次请求因 target==blocked 被直接吞掉、什么都不发生。
      */
     private void drainApply(Context app) {
         while (true) {
-            final boolean target = desiredBlocked.get();
-            if (target == blocked) {
-                main.post(() -> toastState(app, target, lastSilent));
-                return;
+            final boolean target;
+            synchronized (desiredBlocked) {
+                target = desiredBlocked.get();
+                if (target == blocked) {
+                    main.post(() -> toastState(app, target, lastSilent));
+                    return;
+                }
             }
             final int m = mode;
             final boolean ok = (m == MODE_ROOT) ? RootShell.apply(target) : applyVpn(app, target);
@@ -176,7 +183,16 @@ public final class NetBlocker {
      */
     private boolean applyVpn(Context app, boolean target) {
         if (!target) {
-            app.stopService(new Intent(app, HoleVpnService.class));
+            // Bug9：stopService 只是"通知系统回收"，若 drainLoop 阻塞在服务回收之前，
+            // stopPump 永远不会被调到。改为主动发 ACTION_STOP 让 service 自己走关闭流程，
+            // 确保 tun.close() 一定被执行。
+            Intent stop = new Intent(app, HoleVpnService.class)
+                    .setAction(HoleVpnService.ACTION_STOP);
+            try {
+                app.startService(stop);
+            } catch (Exception e) {
+                // service 可能已被系统回收，忽略
+            }
             return true;
         }
         if (VpnService.prepare(app) != null) {

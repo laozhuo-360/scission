@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.VpnService;
 import android.os.ParcelFileDescriptor;
+import android.system.Os;
+import android.system.OsConstants;
+import android.system.StructPollfd;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -17,7 +20,6 @@ import com.linye.netblock.core.NetActionReceiver;
 import com.linye.netblock.core.NetBlocker;
 import com.linye.netblock.ui.MainActivity;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -36,9 +38,19 @@ public class HoleVpnService extends VpnService {
     private Thread pumpThread;
     private ParcelFileDescriptor tun;
 
+    /**
+     * Bug9：intent 为 null 说明是系统回收后重建（START_STICKY 残留），
+     * 绝不能默认 ACTION_START 重新打开 VPN —— 必须直接自杀，把控制权还给用户。
+     * 用 START_NOT_STICKY 取代 STICKY，杜绝"恢复后 VPN 又被系统拉起"的竞态。
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String action = intent != null ? intent.getAction() : ACTION_START;
+        if (intent == null) {
+            // 系统重建：不自动开 VPN，自杀让下次正常 startService 走完整流程
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+        String action = intent.getAction();
         if (ACTION_STOP.equals(action)) {
             stopPump();
             stopSelf();
@@ -47,7 +59,7 @@ public class HoleVpnService extends VpnService {
         if (!running.get()) {
             startPump();
         }
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private synchronized void startPump() {
@@ -86,23 +98,37 @@ public class HoleVpnService extends VpnService {
         }
     }
 
-    /** 黑洞主循环：所有进 TUN 的包只读不写。 */
+    /**
+     * 黑洞主循环：所有进 TUN 的包只读不写。
+     *
+     * Bug9：原来用 FileInputStream.read() 是无限阻塞式调用，
+     * stopService 后 TUN 文件描述符要等当前 read 返回才会真正关闭，
+     * 导致 drainLoop 线程永久卡住、service 无法完全销毁。
+     * 改用 Os.poll() 每次最多阻塞 100ms，回到循环顶部检查 running 标志，
+     * 保证 stopPump() 置位后最多 100ms 内循环自然退出。
+     */
     private void drainLoop() {
+        android.os.ParcelFileDescriptor pfd = tun;
+        if (pfd == null) return;
+        java.io.FileDescriptor fd = pfd.getFileDescriptor();
         byte[] buf = new byte[32768];
-        try (FileInputStream in = new FileInputStream(tun.getFileDescriptor())) {
+        try {
             while (running.get()) {
-                int n = in.read(buf);
-                if (n <= 0) {
-                    try {
-                        Thread.sleep(50);
-                    } catch (InterruptedException ie) {
-                        break;
-                    }
+                StructPollfd[] fds = new StructPollfd[1];
+                fds[0] = new StructPollfd();
+                fds[0].fd = fd;
+                fds[0].events = (short) OsConstants.POLLIN;
+                // 最多阻塞 100ms，超时返回 0 继续检查 running
+                int ready = Os.poll(fds, 100);
+                if (!running.get()) break;
+                if (ready > 0 && (fds[0].revents & OsConstants.POLLIN) != 0) {
+                    int n = Os.read(fd, buf, 0, buf.length);
+                    if (n <= 0) break;  // 隧道关闭或 EOF
+                    // 读到 n 字节，直接丢弃 —— 100% 丢包
                 }
-                // 直接丢弃 n 字节 —— 这就是 100% 丢包
             }
-        } catch (IOException e) {
-            // TUN 关闭属正常退出路径
+        } catch (Exception e) {
+            // TUN 关闭或 poll/read 出错，属正常退出路径
         }
     }
 

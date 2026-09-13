@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 引导页头部：与主界面星空胶囊开关同色系的深蓝渐变 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="225"
+        android:startColor="#1B2A5E"
+        android:centerColor="#152250"
+        android:endColor="#0A1230"
+        android:type="linear" />
+    <corners
+        android:bottomLeftRadius="28dp"
+        android:bottomRightRadius="28dp" />
+</shape>

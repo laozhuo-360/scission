@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- uiverse.io 参考色：Nawsome/silent-owl-45 天蓝 (#60A7FA→#2F8EFC) 与 Galahhad BB-8 深夜蓝 -->
+    <color name="brand_blue">#2F8EFC</color>
+    <color name="brand_blue_light">#60A7FA</color>
+    <color name="brand_deep">#0A1230</color>
+
+    <!-- 胶囊开关 -->
+    <color name="pill_day_track">#D7DCE5</color>
+    <color name="pill_night_top">#1B2A5E</color>
+    <color name="pill_night_bottom">#0A1230</color>
+    <color name="pill_day_deco">#FFFFFF</color>
+    <color name="pill_icon_day">#6B6D76</color>
+    <color name="pill_icon_night">#2F8EFC</color>
+
+    <!-- 状态色 -->
+    <color name="status_green">#27AE60</color>
+    <color name="status_red">#E5484D</color>
+    <color name="status_orange">#F2994A</color>
+
+    <!-- 悬浮窗 -->
+    <color name="fab_blue">#2F8EFC</color>
+    <color name="fab_red">#E5484D</color>
+</resources>

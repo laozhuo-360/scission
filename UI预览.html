@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>断流 Scission · UI 预览</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+  body {
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    gap: 50px; padding: 40px; flex-wrap: wrap;
+    background: linear-gradient(135deg, #0f1830 0%, #1a2a52 55%, #0f1830 100%);
+  }
+  .phone {
+    width: 316px; height: 656px; border-radius: 40px; padding: 13px;
+    background: #10131c; box-shadow: 0 30px 80px rgba(0,0,0,.6), 0 0 0 2px #2a3040;
+    flex-shrink: 0;
+  }
+  .screen {
+    width: 100%; height: 100%; border-radius: 28px; overflow: hidden;
+    color: #e8ecf4; display: flex; flex-direction: column;
+    background: linear-gradient(180deg, #f6f8fc 0%, #eef2f8 100%);
+  }
+  .screen.dark { background: linear-gradient(180deg, #0c1226 0%, #141c38 60%, #0a0f22 100%); }
+  .scr-body { flex: 1; padding: 26px 18px 0; overflow: hidden; }
+  .scr-foot { padding: 10px 18px 18px; }
+
+  /* ---- 引导页星空头部 ---- */
+  .hero {
+    position: relative; padding: 22px 22px 16px; overflow: hidden;
+    background: linear-gradient(160deg, #1b2a5e 0%, #152250 50%, #0a1230 100%);
+    border-radius: 0 0 26px 26px; margin: -26px -18px 0;
+  }
+  .hero .star { position: absolute; background: #fff; border-radius: 50%; }
+  .hero .moon {
+    position: absolute; top: 22px; right: 30px; width: 26px; height: 26px;
+    border-radius: 50%; background: #f6e7b4; box-shadow: 0 0 12px rgba(246,231,180,.65);
+  }
+  .hero .moon::after {
+    content: ""; position: absolute; width: 22px; height: 22px; border-radius: 50%;
+    top: -5px; left: -7px; background: #16245a;
+  }
+  .hero h1 { font-size: 24px; color: #fff; position: relative; }
+  .hero .tag { font-size: 12px; color: #9db4de; margin-top: 2px; position: relative; }
+  .hero .chip {
+    display: inline-block; margin-top: 12px; padding: 4px 11px; border-radius: 20px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2);
+    font-size: 11.5px; color: #bbd3ff; position: relative;
+  }
+
+  /* ---- 主界面开关 ---- */
+  .pill-wrap { display: flex; flex-direction: column; align-items: center; margin-top: 24px; }
+  .brand { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #2f8efc; }
+  .greet { font-size: 27px; font-weight: 700; margin-top: 2px; color: #1a2138; }
+  .dark .greet { color: #e8ecf4; }
+  .pill {
+    position: relative; width: 222px; height: 102px; border-radius: 60px;
+    cursor: pointer; overflow: hidden; margin-top: 26px;
+    background: linear-gradient(180deg, #dfe4ec, #cbd2de);
+    transition: background .5s; box-shadow: inset 0 2px 8px rgba(0,0,0,.08);
+  }
+  .dark .pill { background: linear-gradient(135deg, #1b2a5e 0%, #0a1230 90%); }
+  .pill .lane {
+    position: absolute; bottom: 25px; left: 22px; width: 94px; height: 3px; border-radius: 2px;
+    background: repeating-linear-gradient(90deg, rgba(255,255,255,.9) 0 14px, transparent 14px 22px);
+    opacity: .9; transition: opacity .4s, transform .5s;
+  }
+  .dark .pill .lane { opacity: 0; transform: translateX(-30px); }
+  .pill .cloud { position: absolute; background: #fff; border-radius: 20px; transition: all .5s; }
+  .pill .cloud.c1 { width: 33px; height: 13px; top: 25px; left: 45px; }
+  .pill .cloud.c2 { width: 23px; height: 10px; top: 49px; left: 86px; opacity: .8; }
+  .pill .cloud::after {
+    content: ""; position: absolute; width: 16px; height: 16px; background: #fff;
+    border-radius: 50%; top: -8px; left: 8px;
+  }
+  .dark .pill .cloud { opacity: 0; transform: translateX(60px); }
+  .stars { position: absolute; inset: 0; opacity: 0; transition: opacity .5s .1s; }
+  .dark .pill .stars { opacity: 1; }
+  .stars i { position: absolute; background: #fff; border-radius: 50%; }
+  .stars i:nth-child(1) { width: 4px; height: 4px; top: 27px; left: 35px; }
+  .stars i:nth-child(2) { width: 3px; height: 3px; top: 57px; left: 57px; }
+  .stars i:nth-child(3) { width: 5px; height: 5px; top: 23px; left: 82px; }
+  .stars i:nth-child(4) { width: 3px; height: 3px; top: 61px; left: 108px; }
+  .stars i:nth-child(5) { width: 4px; height: 4px; top: 29px; left: 128px; }
+  .stars i:nth-child(6) { width: 3px; height: 3px; top: 65px; left: 148px; }
+  .pill .moon2 {
+    position: absolute; top: 19px; right: 23px; width: 29px; height: 29px;
+    border-radius: 50%; background: #f6e7b4; box-shadow: 0 0 14px rgba(246,231,180,.7);
+    opacity: 0; transition: opacity .5s .15s;
+  }
+  .pill .moon2::after {
+    content: ""; position: absolute; width: 25px; height: 25px; border-radius: 50%;
+    top: -6px; left: -8px; background: #0a1230;
+  }
+  .dark .pill .moon2 { opacity: 1; }
+  .knob {
+    position: absolute; top: 7px; left: 7px; width: 88px; height: 88px; border-radius: 50%;
+    background: #fff; transition: transform .45s cubic-bezier(.2,.8,.35,1.2);
+    box-shadow: 0 6px 16px rgba(10,20,50,.35);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dark .pill .knob { transform: translateX(120px); }
+  .knob svg { width: 43px; height: 43px; }
+  .knob .on-ic { display: none; }
+  .dark .pill .knob .on-ic { display: block; }
+  .dark .pill .knob .off-ic { display: none; }
+
+  .status { margin-top: 16px; text-align: center; }
+  .status b { font-size: 20px; color: #27ae60; transition: color .4s; }
+  .dark .status b { color: #ff5f61; }
+  .status span { display: block; font-size: 12px; color: #7a8299; margin-top: 4px; }
+  .dark .status span { color: #8fa2c8; }
+
+  .card {
+    margin-top: 14px; background: #fff; border-radius: 20px; padding: 13px 15px;
+    border: 1px solid #dfe4ec; font-size: 12.5px; color: #565d6d;
+  }
+  .dark .card { background: #16224a; border-color: #24356b; color: #b9c6e4; }
+  .card .t { font-weight: 700; font-size: 13.5px; color: #22283a; margin-bottom: 8px; }
+  .dark .card .t { color: #e8ecf4; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+  .row small { display: block; color: #9aa2b5; font-size: 11px; margin-top: 2px; }
+  .dark .row small { color: #7d8fbb; }
+  .tg { width: 40px; height: 22px; border-radius: 12px; background: #cbd2de; position: relative; flex-shrink: 0; }
+  .tg::after { content: ""; position: absolute; width: 18px; height: 18px; border-radius: 50%; background: #fff; top: 2px; left: 2px; }
+  .tg.on { background: #2f8efc; }
+  .tg.on::after { left: 20px; }
+  .badge { font-size: 10.5px; font-weight: 700; color: #27ae60; }
+
+  /* ---- 引导页步骤 ---- */
+  .step-h { font-size: 18.5px; font-weight: 700; color: #1a2138; }
+  .dark .step-h { color: #e8ecf4; }
+  .step-s { font-size: 12px; color: #7a8299; margin-top: 4px; }
+  .dark .step-s { color: #8fa2c8; }
+  .pcard {
+    margin-top: 14px; background: #fff; border-radius: 20px; padding: 14px 15px;
+    border: 1px solid #dfe4ec; display: flex; align-items: center; gap: 10px;
+  }
+  .dark .pcard { background: #16224a; border-color: #24356b; }
+  .pcard .info { flex: 1; }
+  .pcard .info b { font-size: 14px; color: #22283a; display: block; }
+  .dark .pcard .info b { color: #e8ecf4; }
+  .pcard .info small { font-size: 11px; color: #9aa2b5; display: block; margin-top: 3px; line-height: 1.4; }
+  .dark .pcard .info small { color: #8fa0c8; }
+  .tbtn {
+    border: none; border-radius: 18px; padding: 7px 13px; font-size: 11.5px; font-weight: 600;
+    background: #dcebff; color: #1f5fb0; flex-shrink: 0;
+  }
+  .tbtn.done { background: #e3f4e9; color: #27ae60; }
+  .modecard {
+    margin-top: 14px; background: #fff; border-radius: 20px; padding: 15px;
+    border: 2px solid #dfe4ec;
+  }
+  .modecard.sel { border-color: #2f8efc; }
+  .dark .modecard { background: #16224a; border-color: #24356b; }
+  .dark .modecard.sel { border-color: #2f8efc; }
+  .modecard b { font-size: 15px; color: #22283a; }
+  .dark .modecard b { color: #e8ecf4; }
+  .modecard .bdg { font-size: 11.5px; font-weight: 700; margin-top: 3px; }
+  .modecard p { font-size: 11.5px; color: #7a8299; line-height: 1.65; margin-top: 8px; }
+  .dark .modecard p { color: #93a4cb; }
+  .dots { display: flex; gap: 7px; justify-content: center; margin-bottom: 13px; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: #cbd2de; display: block; }
+  .dots i.act { width: 20px; border-radius: 5px; background: #2f8efc; }
+  .fbtn {
+    width: 100%; border: none; border-radius: 24px; padding: 13px; font-size: 14.5px; font-weight: 600;
+    background: #2f8efc; color: #fff;
+  }
+  .frow { display: flex; gap: 8px; align-items: center; }
+  .sbtn { background: none; border: none; color: #7a8299; font-size: 13px; padding: 13px 10px; }
+
+  /* 右侧说明 */
+  .side { max-width: 400px; color: #dfe6f5; }
+  .side h2 { font-size: 21px; margin-bottom: 6px; }
+  .side h2 em { color: #60a7fa; font-style: normal; }
+  .side .sub2 { font-size: 12.5px; color: #8fa2c8; margin-bottom: 14px; }
+  .side ul { list-style: none; }
+  .side li {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(96,167,250,.25);
+    border-radius: 14px; padding: 11px 15px; margin-bottom: 9px; font-size: 13px; line-height: 1.55;
+  }
+  .side li b { color: #60a7fa; }
+  .label { text-align: center; font-size: 12px; color: #7d8fbb; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ===== 引导页（第 3 步：模式选择）===== -->
+<div>
+<div class="phone"><div class="screen dark">
+  <div class="scr-body">
+    <div class="hero">
+      <span class="star" style="width:4px;height:4px;top:22px;left:36px"></span>
+      <span class="star" style="width:3px;height:3px;top:58px;left:64px;opacity:.8"></span>
+      <span class="star" style="width:5px;height:5px;top:18px;left:98px"></span>
+      <span class="star" style="width:3px;height:3px;top:64px;left:132px;opacity:.85"></span>
+      <span class="star" style="width:4px;height:4px;top:26px;left:168px"></span>
+      <span class="star" style="width:3px;height:3px;top:62px;left:200px;opacity:.7"></span>
+      <span class="moon"></span>
+      <h1>断流 Scission</h1>
+      <div class="tag">100% 丢包 · 弱网模拟</div>
+      <span class="chip">第 4 / 5 步</span>
+    </div>
+    <div class="step-h" style="margin-top:20px">选择运行模式</div>
+    <div class="step-s">两种模式都能实现 100% 丢包，按需选择</div>
+    <div class="modecard sel">
+      <b>Root 模式</b>
+      <div class="bdg" style="color:#27ae60">推荐 · 已检测到 Root</div>
+      <p>① 内核级 iptables 拦截，断网最彻底<br>② 状态栏干净，无 VPN 图标<br>③ 不占用 VPN 通道，可与其他 VPN 共存<br>④ 断流状态杀进程也持续有效</p>
+    </div>
+    <div class="modecard">
+      <b>无 Root 模式</b>
+      <div class="bdg" style="color:#f2994a">无需 Root</div>
+      <p>① 建立 VPN 隧道接管全部流量后丢弃<br>② 无需 Root，授权一次即可使用<br>③ 状态栏会显示 VPN 钥匙图标<br>④ 不能与其他 VPN 同时开启</p>
+    </div>
+  </div>
+  <div class="scr-foot">
+    <div class="dots"><i></i><i></i><i></i><i class="act"></i><i></i></div>
+    <button class="fbtn">下一步</button>
+  </div>
+</div></div>
+<div class="label">引导页 · 星空头部与主界面同色系</div>
+</div>
+
+<!-- ===== 引导页（权限步骤）===== -->
+<div>
+<div class="phone"><div class="screen dark">
+  <div class="scr-body">
+    <div class="hero">
+      <span class="star" style="width:4px;height:4px;top:22px;left:36px"></span>
+      <span class="star" style="width:3px;height:3px;top:58px;left:64px;opacity:.8"></span>
+      <span class="star" style="width:5px;height:5px;top:18px;left:98px"></span>
+      <span class="star" style="width:3px;height:3px;top:64px;left:132px;opacity:.85"></span>
+      <span class="star" style="width:4px;height:4px;top:26px;left:168px"></span>
+      <span class="moon"></span>
+      <h1>断流 Scission</h1>
+      <div class="tag">100% 丢包 · 弱网模拟</div>
+      <span class="chip">第 2 / 5 步</span>
+    </div>
+    <div class="step-h" style="margin-top:20px">配置基础权限</div>
+    <div class="step-s">用于状态栏通知与快捷悬浮窗，建议全部开启</div>
+    <div class="pcard">
+      <div class="info"><b>通知权限</b><small>在通知栏显示断流状态和快捷按钮</small></div>
+      <button class="tbtn done">已开启</button>
+    </div>
+    <div class="pcard">
+      <div class="info"><b>悬浮窗权限</b><small>在其他应用上层显示快捷断流悬浮球</small></div>
+      <button class="tbtn">去开启</button>
+    </div>
+  </div>
+  <div class="scr-foot">
+    <div class="dots"><i></i><i class="act"></i><i></i><i></i><i></i></div>
+    <button class="fbtn">下一步</button>
+  </div>
+</div></div>
+<div class="label">引导页 · 权限卡片（状态自动刷新）</div>
+</div>
+
+<!-- ===== 主界面 ===== -->
+<div>
+<div class="phone"><div class="screen dark" id="scr">
+  <div class="scr-body">
+    <div class="brand">断流 Scission</div>
+    <div class="greet">晚上好</div>
+    <div class="pill-wrap">
+      <div class="pill" onclick="toggle()">
+        <div class="stars"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="moon2"></div>
+        <div class="lane"></div>
+        <div class="cloud c1"></div>
+        <div class="cloud c2"></div>
+        <div class="knob">
+          <svg class="off-ic" viewBox="0 0 24 24"><path fill="#6b6d76" d="M12,21 L15.5,16.5 C14.5,15.6 13.3,15 12,15 C10.7,15 9.5,15.6 8.5,16.5 L12,21 Z M12,3 C7.3,3 3,4.7 0,7.5 L2.5,10.7 C4.9,8.5 8.3,7 12,7 C15.7,7 19.1,8.5 21.5,10.7 L24,7.5 C21,4.7 16.7,3 12,3 Z M12,11 C9.7,11 7.6,11.8 5.9,13.2 L8.4,16.4 C9.4,15.5 10.6,15 12,15 C13.4,15 14.6,15.5 15.6,16.4 L18.1,13.2 C16.4,11.8 14.3,11 12,11 Z"/></svg>
+          <svg class="on-ic" viewBox="0 0 24 24"><path fill="#2f8efc" d="M12,3 C7.3,3 3,4.7 0,7.5 L2.5,10.7 C4.9,8.5 8.3,7 12,7 C15.7,7 19.1,8.5 21.5,10.7 L24,7.5 C21,4.7 16.7,3 12,3 Z M12,11 C9.7,11 7.6,11.8 5.9,13.2 L8.4,16.4 C9.4,15.5 10.6,15 12,15 C13.4,15 14.6,15.5 15.6,16.4 L18.1,13.2 C16.4,11.8 14.3,11 12,11 Z"/><path stroke="#2f8efc" stroke-width="2.4" stroke-linecap="round" d="M4,3 L20,21"/></svg>
+        </div>
+      </div>
+      <div class="status"><b id="st">已断网</b><span id="ss">100% 丢包生效中，再点一下恢复</span></div>
+    </div>
+    <div class="card">
+      <div class="t">运行模式</div>
+      <div class="row"><span>Root 模式 <small>iptables 内核级拦截</small></span><span class="badge">已检测到 Root</span></div>
+      <div class="row"><span>无 Root 模式 <small>VPN 隧道黑洞全部流量</small></span><span class="tg"></span></div>
+    </div>
+  </div>
+</div></div>
+<div class="label">主界面 · 点开关试试星空/跑道切换</div>
+</div>
+
+<!-- ===== 说明 ===== -->
+<div class="side">
+  <h2>「断流 Scission」<em>改版预览</em></h2>
+  <div class="sub2">应用名升级 + 引导页与主界面风格统一</div>
+  <ul>
+    <li><b>新名字「断流 Scission」</b>：Scission 在物理与网络语境中意为"断裂/断开"，气质冷峻专业；桌面图标名显示为「断流」。</li>
+    <li><b>全新应用图标</b>：深夜蓝渐变底 + 星场 + 月牙 + 品牌蓝信号弧，与主界面星空开关完全同色系，一眼认出。</li>
+    <li><b>引导页统一风格</b>：新增星空渐变头部（含品牌名、副标题、第 N/M 步标签），与主界面开关同一套配色；所有卡片改为主界面同款 20dp 圆角 + 1dp 描边。</li>
+    <li><b>细节升级</b>：权限卡片改为"文字 + 右侧按钮"横向布局，已授权显示绿色「已开启」；模式卡选中态用品牌蓝 2dp 描边；步骤点当前项为蓝色胶囊。</li>
+    <li><b>主界面呼应</b>：标题上方新增品牌蓝小字「断流 Scission」，与引导页头部形成视觉延续。</li>
+  </ul>
+</div>
+
+<script>
+  function toggle() {
+    const scr = document.getElementById('scr');
+    const st = document.getElementById('st'), ss = document.getElementById('ss');
+    scr.classList.toggle('dark');
+    const dark = scr.classList.contains('dark');
+    st.textContent = dark ? '已断网' : '网络正常';
+    ss.textContent = dark ? '100% 丢包生效中，再点一下恢复' : '点击星空开关一键断流';
+  }
+</script>
+</body>
+</html>

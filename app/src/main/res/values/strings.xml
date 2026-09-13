@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">断流</string>
+    <string name="app_subtitle">弱网模拟 · 100% 丢包</string>
+
+    <!-- 总开关状态 -->
+    <string name="status_ok">网络正常</string>
+    <string name="status_sub_ok">点击星空开关一键断流</string>
+    <string name="status_blocked">已断网</string>
+    <string name="status_sub_blocked">100% 丢包生效中，再点一下恢复</string>
+
+    <!-- 模式 -->
+    <string name="mode_title">运行模式</string>
+    <string name="mode_root_title">Root 模式</string>
+    <string name="mode_root_desc">iptables 内核级拦截，断网更彻底，不影响 VPN 图标</string>
+    <string name="mode_vpn_title">无 Root 模式</string>
+    <string name="mode_vpn_desc">VPN 隧道黑洞全部流量，需授权一次「VPN 连接」</string>
+    <string name="root_detected">已检测到 Root</string>
+    <string name="root_not_detected">未检测到 Root</string>
+
+    <!-- 快捷方式 -->
+    <string name="quick_title">快捷开关</string>
+    <string name="quick_floating">悬浮窗</string>
+    <string name="quick_floating_desc">点击切换断网/恢复，可拖动、长按进主界面</string>
+    <string name="quick_volume">音量键控制</string>
+    <string name="quick_volume_desc">音量上键 = 开启断网；音量下键 = 直接恢复</string>
+    <string name="quick_tile">通知栏控制</string>
+    <string name="quick_tile_desc">开启悬浮窗后常驻通知自带「断网 / 恢复」按钮，任何界面下拉即可操作</string>
+
+    <!-- 通知 -->
+    <string name="notif_channel">断网状态</string>
+    <string name="notif_title_ok">断流 · 待命</string>
+    <string name="notif_text_ok">网络正常，随时可以断网</string>
+    <string name="notif_title_blocked">已断网</string>
+    <string name="notif_text_blocked">100% 丢包生效中</string>
+    <string name="action_block">断网</string>
+    <string name="action_restore">恢复网络</string>
+
+    <!-- VPN 前台通知 -->
+    <string name="vpn_notif_title">无 Root 断网运行中</string>
+    <string name="vpn_notif_text">VPN 隧道黑洞模式 · 100% 丢包</string>
+
+    <!-- Bug3：VPN 授权引导通知 -->
+    <string name="vpn_auth_channel">VPN 授权</string>
+    <string name="vpn_auth_title">需要授权 VPN 连接</string>
+    <string name="vpn_auth_text">无 Root 模式依靠 VPN 隧道断网，点这里立即授权并开启</string>
+
+    <!-- 无障碍 -->
+    <string name="accessibility_label">断流 · 音量键控制</string>
+    <string name="accessibility_desc">监听音量键：音量上键开启断网，音量下键恢复网络。不需要读取屏幕内容。</string>
+
+    <!-- Toast -->
+    <string name="toast_blocked_on">已断网 · 100% 丢包</string>
+    <string name="toast_blocked_off">网络已恢复</string>
+    <string name="toast_root_failed">断网失败：未获得 Root 授权</string>
+    <string name="toast_vpn_failed">操作失败：VPN 服务异常</string>
+    <string name="toast_vpn_denied">未授权 VPN 连接，已取消断网</string>
+    <string name="toast_acc_killed">音量键服务被系统关闭，请到无障碍设置重新开启「断流」</string>
+    <string name="toast_go_overlay">需要「显示在其他应用上层」权限</string>
+    <string name="toast_go_accessibility">请在无障碍设置中启用「断流」服务</string>
+
+    <!-- 悬浮窗无障碍描述 -->
+    <string name="cd_fab_block">点击断网</string>
+    <string name="cd_fab_restore">点击恢复网络</string>
+
+    <!-- 使用说明 -->
+    <string name="tips_title">使用说明</string>
+    <string name="tips_1">Root 模式：直接丢弃所有进出流量（保留本机内部通信），关屏杀进程也不影响，重开应用会自动清理残留规则。</string>
+    <string name="tips_2">无 Root 模式：状态栏出现 VPN 钥匙图标属正常现象，关闭后立即恢复。</string>
+    <string name="tips_3">音量键开关需要保持无障碍服务开启；开启后音量键不再调节系统音量，可随时在本页关闭。</string>
+    <string name="tips_4">部分手机（小米 / OPPO / vivo 等）清理后台会连带杀掉无障碍与后台服务：请在系统设置中允许「断流」自启动，并在最近任务里锁定后台。</string>
+
+    <!-- 首次设置向导 -->
+    <string name="setup_brand">断流 Scission</string>
+    <string name="setup_tagline">100% 丢包 · 弱网模拟</string>
+    <string name="setup_start">开始配置</string>
+    <string name="setup_welcome_title">欢迎使用断流</string>
+    <string name="setup_welcome_desc">一部手机模拟 100% 丢包弱网\n悬浮窗 · 状态栏 · 音量键，随处一键断流\n只需 1 分钟完成配置</string>
+    <string name="setup_step_of">第 %1$d / %2$d 步</string>
+    <string name="setup_perm_title">配置基础权限</string>
+    <string name="setup_perm_desc">用于状态栏通知与快捷悬浮窗，建议全部开启</string>
+    <string name="setup_perm_notif">通知权限</string>
+    <string name="setup_perm_notif_desc">在通知栏显示断流状态和快捷按钮</string>
+    <string name="setup_perm_overlay">悬浮窗权限</string>
+    <string name="setup_perm_overlay_desc">在其他应用上层显示快捷断流悬浮球</string>
+    <string name="setup_perm_done">已开启</string>
+    <string name="setup_perm_todo">去开启</string>
+    <string name="setup_next">下一步</string>
+    <string name="setup_finish">开始使用</string>
+    <string name="setup_acc_title">音量键控制</string>
+    <string name="setup_acc_badge">可选功能</string>
+    <string name="setup_acc_desc">开启无障碍服务后，无需点亮屏幕即可控制断流</string>
+    <string name="setup_acc_vol_up">音量上键 = 开启断网</string>
+    <string name="setup_acc_vol_down">音量下键 = 直接恢复网络</string>
+    <string name="setup_acc_note">生效期间音量键不再调节系统音量，可随时在主界面关闭该功能。</string>
+    <string name="setup_acc_open">开启无障碍服务</string>
+    <string name="setup_acc_skip">暂时跳过</string>
+    <string name="setup_mode_title">选择运行模式</string>
+    <string name="setup_mode_desc">两种模式都能实现 100% 丢包，按需选择</string>
+    <string name="setup_mode_root_badge">推荐 · 已检测到 Root</string>
+    <string name="setup_mode_root_desc">① 内核级 iptables 拦截，断网最彻底\n② 状态栏干净，无 VPN 图标\n③ 不占用 VPN 通道，可与其他 VPN 共存\n④ 断流状态杀进程也持续有效</string>
+    <string name="setup_mode_vpn_badge">无需 Root</string>
+    <string name="setup_mode_vpn_desc">① 建立 VPN 隧道接管全部流量后丢弃\n② 无需 Root，授权一次即可使用\n③ 状态栏会显示 VPN 钥匙图标\n④ 不能与其他 VPN 同时开启</string>
+    <string name="setup_done_title">一切就绪</string>
+    <string name="setup_done_desc">主界面点一下星空开关即可断流与恢复\n通知栏按钮 · 悬浮窗 · 音量键，随处一键断流</string>
+    <string name="greeting_morning">早上好</string>
+    <string name="greeting_noon">中午好</string>
+    <string name="greeting_afternoon">下午好</string>
+    <string name="greeting_evening">晚上好</string>
+    <string name="greeting_late">夜深了</string>
+</resources>

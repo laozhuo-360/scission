@@ -11,7 +11,7 @@
 
 ## 下载
 
-到 [Releases](https://github.com/laozhuo-360/scission/releases/latest) 页面下载最新 APK，直接安装即可。想自己编译的话看下方「构建」。
+到 [Releases](https://github.com/laozhuo-360/scission/releases/latest) 页面下最新的 APK，装上就能用。想自己编的话看下方「构建」。
 
 ---
 
@@ -24,10 +24,10 @@
 | 通知栏按钮 | 常驻通知自带「断网 / 恢复」按钮，任何界面下拉即用 |
 | 音量键 | 音量**上**键 = 开启断网；音量**下**键 = 直接恢复（需开启无障碍服务） |
 
-- 开启时有色状态提示，悬浮球蓝（正常）红（断网）双色区分
-- 状态机带防抖，快速连按音量键不会卡顿或堆积任务
-- 主界面左上角按时段问候，模式选择、快捷开关一目了然
-- 首次启动有 5 步配置向导，权限申请与模式选择引导到位
+- 开启时有颜色提示，悬浮球蓝色是正常，红色是断网中
+- 状态机带防抖，音量键连按也不会卡、不会堆积任务
+- 主界面左上角按时段问候，模式和快捷开关都摆在同一屏
+- 首次启动有 5 步向导，逐个把权限和模式选好
 
 ## 两种运行模式
 
@@ -39,8 +39,8 @@
 
 - 使用自定义链 `NB_OUT` / `NB_IN`，插入 `OUTPUT` 与 `INPUT` 链首，除 `lo` 回环外全部 `DROP`
 - `ip6tables` 同步处理，IPv6 流量一并拦截
-- 保留本机内部通信（`-o lo` / `-i lo` 豁免），不影响 App 间本地通信
-- **不留 VPN 图标**，可与其他 VPN 共存，断网状态不受进程存活影响
+- 本机自己的回环流量放行（`-o lo` / `-i lo`），App 之间互相通信照常
+- **不留 VPN 图标**，能跟别的 VPN 共存；App 进程被杀掉，断网照样生效
 - App 冷启动时会无条件清理残留规则，避免上次异常退出导致永久断网
 
 ### 无 Root 模式
@@ -51,21 +51,21 @@
 - TUN 读出数据后直接丢弃，不做转发，出站包石沉大海
 - 首次使用需授权一次系统「VPN 连接」对话框
 - 状态栏会出现 VPN 钥匙图标，属正常现象
-- 不能与其他 VPN 同时开启
+- 跟别的 VPN 没法一起开
 
 ## 技术要点
 
-**状态机统一入口**。所有控制入口（主界面 / 悬浮窗 / 通知 / 音量键）都经过 `NetBlocker`，单点维护状态与广播。
+**状态机统一入口**。主界面、悬浮窗、通知栏、音量键四个入口都经过 `NetBlocker`，状态改一处，四处跟着变。
 
 **防抖设计**。`setBlocked()` 只写入期望状态 `AtomicBoolean` 后立即返回，由单线程 `drainApply()` 循环消化。快速连按 N 次时中间态全部跳过，只执行最终值，界面不卡、Toast 也不刷屏。
 
 **音量键拦截**。`AccessibilityService` + `FLAG_REQUEST_FILTER_KEY_EVENTS` 拦截 `VOLUME_UP` / `VOLUME_DOWN`，消费事件后不改变系统音量。
 
-**自绘开关组件**。`PillSwitchView` 完全自绘。关闭态是白天跑道（虚线加白云），开启态是深夜星空（星星加月牙）。`ValueAnimator` 弹性滑动配 `ArgbEvaluator` 颜色混合，没引第三方依赖。
+**自绘开关组件**。`PillSwitchView` 完全自绘。关闭态是白天跑道（虚线加白云），开启态是深夜星空（星星加月牙）。`ValueAnimator` 弹性滑动配 `ArgbEvaluator` 颜色混合，外部库一个没引。
 
 **服务保活自愈**。`FloatingService` 暴露 `sRunning` 静态标志，主界面 `onResume` 检测到服务被系统回收、而用户仍需悬浮窗时，自动重新拉起。
 
-**合规前台服务**。`targetSdk 35`，VPN 与悬浮窗服务都声明了 `foregroundServiceType="specialUse"`，并附上 `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` 说明。
+**合规前台服务**。`targetSdk 35`，VPN 和悬浮窗服务都声明了 `foregroundServiceType="specialUse"`，带上 `PROPERTY_SPECIAL_USE_FGS_SUBTYPE` 说明。
 
 ## 权限说明
 
@@ -86,7 +86,7 @@
 - JDK 17+
 - Android SDK（compileSdk 35、build-tools 34.0.0）
 
-Gradle 不用另外装，项目自带 Wrapper。
+Gradle 不用自己装，项目里带着 Wrapper。
 
 ### 命令行构建
 
@@ -119,7 +119,7 @@ gradle/wrapper/                   # Gradle Wrapper，无需本机预装 Gradle
 app/src/main/java/com/linye/netblock/
 ├── App.java                      # Application 入口，初始化状态机
 ├── core/
-│   ├── NetBlocker.java           # 核心状态机（统一控制入口 + 防抖）
+│   ├── NetBlocker.java           # 状态机，控制入口和防抖都归它管
 │   ├── RootShell.java            # Root 模式：iptables 规则管理
 │   └── NetActionReceiver.java    # 通知栏按钮广播接收
 ├── service/
@@ -140,12 +140,12 @@ tools/
 
 **厂商 ROM 保活**。小米、OPPO、vivo 这些系统的「清理后台」可能连带关掉无障碍服务和后台服务。需要在系统设置里允许自启动，再在最近任务里锁定后台。App 检测到服务失效会提示，但拦不住系统行为。
 
-**应用商店审核**。这个 App 同时用了 `su` 执行 shell、无障碍服务、VPN 全流量接管。这三项凑一起，多数应用商店都难通过。项目面向开发者和本机调试。
+**应用商店审核**。这个 App 把三样敏感的东西占全了：`su` 执行 shell、无障碍服务、VPN 全流量接管。凑一块，多数应用商店都难通过。项目面向开发者和本机调试。
 
-**与其他 VPN 冲突**。无 Root 模式会占用系统 VPN 通道，跟别的 VPN 没法同时开。需要共存就用 Root 模式。
+**与其他 VPN 冲突**。无 Root 模式要独占系统 VPN 通道，装了别的 VPN 就只能二选一。想两个都留着，用 Root 模式。
 
 ## 许可证
 
 [MIT License](LICENSE)
 
-UI 设计灵感来自 [uiverse.io](https://uiverse.io) 开源组件库。开关组件是独立自绘实现，没拷贝第三方代码。
+UI 设计灵感来自 [uiverse.io](https://uiverse.io) 开源组件库。开关组件是自己画的，没抄别人的代码。

@@ -78,7 +78,8 @@
 
 - JDK 17+
 - Android SDK（compileSdk 35、build-tools 34.0.0）
-- Gradle 8.9
+
+Gradle 不用另外装，项目自带 Wrapper。
 
 ### 命令行构建
 
@@ -86,9 +87,14 @@
 # 配置 SDK 路径（此文件不会被提交）
 echo "sdk.dir=/path/to/Android/Sdk" > local.properties
 
-# 打包 Debug APK
-gradle assembleDebug
+# macOS / Linux
+./gradlew assembleDebug
+
+# Windows
+gradlew.bat assembleDebug
 ```
+
+首次执行会由 Wrapper 自动拉取 Gradle 8.9，需要能访问 `services.gradle.org`。
 
 产物路径 `app/build/outputs/apk/debug/app-debug.apk`
 
@@ -99,6 +105,10 @@ gradle assembleDebug
 ## 项目结构
 
 ```
+CHANGELOG.md                      # 版本变更记录
+LICENSE                           # MIT
+ui-preview.html                   # UI 设计预览（浏览器直接打开）
+gradle/wrapper/                   # Gradle Wrapper，无需本机预装 Gradle
 app/src/main/java/com/linye/netblock/
 ├── App.java                      # Application 入口，初始化状态机
 ├── core/

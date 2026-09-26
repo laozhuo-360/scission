@@ -15,6 +15,8 @@ captures/
 # ---- Java ----
 *.class
 *.jar
+# Gradle Wrapper 的 jar 必须提交，否则 clone 下来无法用 ./gradlew 构建
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 

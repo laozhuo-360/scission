@@ -1,10 +1,17 @@
 # 断流 Scission
 
+[![Release](https://img.shields.io/github/v/release/laozhuo-360/scission?label=release)](https://github.com/laozhuo-360/scission/releases)
+[![License](https://img.shields.io/github/license/laozhuo-360/scission?label=license)](LICENSE)
+
 > 一部手机，一键模拟 100% 丢包的弱网环境。
 
 测 App 在断网、弱网下的表现，开飞行模式太重，WiFi 和蓝牙一起断；改路由器又太麻烦。断流把设备变成一个网络黑洞，所有进出的流量进得来、出不去，等效于 100% 丢包。开是一下，关也是一下。
 
 **⚠️ 免责声明：本项目仅供网络测试、应用开发调试等合法用途。禁止用于任何非法用途（如切断他人网络、规避计费、干扰通信服务等）。使用本软件所产生的一切后果由使用者自行承担。**
+
+## 下载
+
+到 [Releases](https://github.com/laozhuo-360/scission/releases/latest) 页面下载最新 APK，直接安装即可。想自己编译的话看下方「构建」。
 
 ---
 
